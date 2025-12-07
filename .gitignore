@@ -1,0 +1,17 @@
+# Build artifacts
+/build/
+/CMakeFiles/
+/CMakeCache.txt
+/*.cmake
+/*.o
+/*.obj
+/*.so
+/*.a
+/*.dll
+/*.exe
+
+# Editor files
+*~
+*.swp
+.vscode/
+.idea/
