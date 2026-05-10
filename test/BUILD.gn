@@ -1,0 +1,22 @@
+executable("test_cpy") {
+  sources = [ "test_cpy.cpp" ]
+
+  include_dirs = [
+    "//libuniopt/inc",
+  ]
+}
+
+executable("test_clz") {
+  sources = [ "test_clz.cpp" ]
+
+  include_dirs = [
+    "//libuniopt/inc",
+  ]
+}
+
+group("test_all") {
+  deps = [
+    ":test_cpy",
+    ":test_clz",
+  ]
+}

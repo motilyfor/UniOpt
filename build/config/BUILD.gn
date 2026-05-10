@@ -1,0 +1,55 @@
+config("compiler_defaults") {
+  cflags = []
+  defines = []
+  
+  if (is_linux) {
+    cflags += [
+      "-fPIC",
+      "-pthread",
+    ]
+    cflags_cc = [ "-std=c++23" ]
+    if (!is_clang) {
+      cflags_cc += [ "-fmodules-ts" ]
+    } else {
+      cflags_cc += [ "-fprebuilt-module-path=." ]
+    }
+  } else if (is_win) {
+    cflags += [
+      "/DNOMINMAX",
+      "/D_CRT_SECURE_NO_WARNINGS",
+    ]
+    cflags_cc = [ "/std:c++23" ]
+  }
+
+  if (current_cpu == "x64") {
+    defines += [ "ARCH_X86_64" ]
+    if (is_linux) {
+      cflags += [ "-mavx2" ]
+    } else if (is_win) {
+      cflags += [ "/arch:AVX2" ]
+    }
+  } else if (current_cpu == "arm64") {
+    defines += [ "ARCH_ARM64" ]
+    if (is_linux) {
+      cflags += [ "-march=armv8-a+fp+simd" ]
+    }
+  }
+}              
+
+
+config("debug") {
+  if (is_win) {
+    cflags = [ "/Od", "/Zi" ]
+    ldflags = [ "/DEBUG" ]
+  } else {
+    cflags = [ "-O0", "-g" ]
+  }
+}
+
+config("release") {
+  if (is_win) {
+    cflags = [ "/O2" ]
+  } else {
+    cflags = [ "-O3" ]
+  }
+}

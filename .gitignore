@@ -1,17 +1,57 @@
-# Build artifacts
-/build/
-/CMakeFiles/
-/CMakeCache.txt
-/*.cmake
-/*.o
-/*.obj
-/*.so
-/*.a
-/*.dll
-/*.exe
+# ---- Build outputs (GN/Ninja) ----
+out/
 
-# Editor files
+# Ninja/GN intermediates and dependency files
+*.ninja
+*.ninja.d
+*.ninja.stamp
+*.d
+
+# ---- C/C++ artifacts ----
+*.o
+*.obj
+*.lo
+*.slo
+*.a
+*.la
+*.lai
+*.so
+*.dylib
+*.dll
+*.exe
+*.app
+*.out
+*.ilk
+*.pdb
+*.dwo
+*.gch
+*.pch
+
+# ---- C++ modules / prebuilt module cache ----
+*.pcm
+gcm.cache/
+
+# ---- Generated compile database ----
+compile_commands.json
+compile_commands.intellisense.json
+
+# ---- Runtime/test generated files ----
+test/testpcm/out/
+
+# ---- Logs / caches ----
+*.log
+.cache/
+build/OUT_GENERATED
+
+# Ignore generated GN fragments and hashes in out
+out/
+
+# Ignore root BUILD backup
+BUILD.gn.bak
+
+# ---- OS/editor temp ----
+.DS_Store
+Thumbs.db
 *~
 *.swp
-.vscode/
-.idea/
+*.swo

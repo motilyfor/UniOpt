@@ -1,0 +1,35 @@
+executable("benchmark") {
+  sources = [ "main.cpp" ]
+
+  deps = [ "//libaudioeffectstore:audioeffectstore" ]
+}
+
+executable("memcpy_benchmark") {
+  sources = [ "memcpy_benchmark.cpp" ]
+
+  include_dirs = [ "//libaudioeffectstore" ]
+}
+
+executable("nlz_benchmark") {
+  sources = [ "nlz_benchmark.cpp" ]
+
+  include_dirs = [
+    "//libaudioeffectstore",
+    "//third_party/google_benchmark/include",
+  ]
+
+  libs = [
+    "//third_party/google_benchmark/lib/libbenchmark.a",
+    "//third_party/google_benchmark/lib/libbenchmark_main.a",
+  ]
+
+  cflags_cc = [ "-std=c++17" ]
+}
+
+group("all") {
+  deps = [
+    ":benchmark",
+    ":memcpy_benchmark",
+    ":nlz_benchmark",
+  ]
+}

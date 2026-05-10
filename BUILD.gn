@@ -1,0 +1,39 @@
+# If a generated GN fragment exists in the out dir, import it. This keeps
+# generated content out of the repository root and avoids overwriting
+# repo-maintained BUILD.gn. The build scripts will create
+# out/<config>/generated_build.gni when needed.
+
+# compute the out dir name using args written into out/<config>/args.gn
+if (is_debug) {
+  build_type = "Debug"
+} else {
+  build_type = "Release"
+}
+
+if (is_clang) {
+  compiler = "clang"
+} else {
+  compiler = "gcc"
+}
+
+import("out/" + target_os + "-" + target_cpu + "-" + build_type + "-" + compiler + "/generated_build.gni")
+
+declare_args() {
+  build_target = ""
+}
+
+group("default") {
+  deps = []
+
+  # Append generated default deps if present (generator creates `generated_default_deps`).
+  if (defined(generated_default_deps)) {
+    deps += generated_default_deps
+  }
+
+  # Fallback for manual builds: include test:all by default
+  if (build_target == "benchmark") {
+    deps += [ "//benchmark:all" ]
+  } else if (build_target == "") {
+    deps += [ "//test:all" ]
+  }
+}

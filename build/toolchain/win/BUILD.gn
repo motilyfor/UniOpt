@@ -1,0 +1,47 @@
+toolchain("msvc") {
+  tool("cc") {
+    command = "cl /nologo /FC {{defines}} {{include_dirs}} {{cflags}} {{cflags_c}} /c {{source}} /Fo{{output}}"
+    depsformat = "msvc"
+    description = "CC {{output}}"
+    outputs = [
+      "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
+    ]
+  }
+
+  tool("cxx") {
+    command = "cl /nologo /FC {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} /c {{source}} /Fo{{output}}"
+    depsformat = "msvc"
+    description = "CXX {{output}}"
+    outputs = [
+      "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
+    ]
+  }
+
+  tool("alink") {
+    command = "lib /nologo /OUT:{{output}} {{inputs}}"
+    description = "LIB {{output}}"
+    outputs = [
+      "{{target_out_dir}}/{{target_output_name}}{{output_extension}}",
+    ]
+    default_output_extension = ".lib"
+  }
+
+  tool("link") {
+    command = "link /nologo /OUT:{{output}} {{inputs}} {{solibs}} {{libs}} {{ldflags}}"
+    description = "LINK {{output}}"
+    outputs = [
+      "{{root_out_dir}}/{{target_output_name}}{{output_extension}}",
+    ]
+    default_output_extension = ".exe"
+  }
+
+  tool("stamp") {
+    command = "cmd /c type nul > {{output}}"
+    description = "STAMP {{output}}"
+  }
+
+  tool("copy") {
+    command = "copy /Y {{source}} {{output}} > nul"
+    description = "COPY {{source}} {{output}}"
+  }
+}
