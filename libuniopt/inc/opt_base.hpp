@@ -30,12 +30,10 @@
 #endif
 #endif
 
-
-#if defined(ARCH_X86_64) || defined(__x86_64__) || defined(__AVX__) || defined(__AVX2__) || \
-    defined(__SSE2__)
-#define OPT_AVX
-#include <immintrin.h>
-#elif defined(__aarch64__) || defined(_M_ARM64) || defined(__ARM_NEON) || defined(__ARM_NEON__)
-#define OPT_NEON
-#include <arm_neon.h>
+#if defined(__x86_64__) || defined(_M_X64)
+    #define OPT_AVX2
+    #include <immintrin.h>
+#elif defined(__aarch64__) || defined(_M_ARM64)
+    #define OPT_NEON
+    #include <arm_neon.h>
 #endif

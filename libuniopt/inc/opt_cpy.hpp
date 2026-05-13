@@ -12,7 +12,7 @@
 
 static INLINE void opt_cpy_16(void* dst, const void* src)
 {
-#if defined(OPT_AVX)
+#if defined(OPT_AVX2)
     __m128i m0 = _mm_loadu_si128(((const __m128i*)src) + 0);
     _mm_storeu_si128(((__m128i*)dst) + 0, m0);
 #elif defined(OPT_NEON)
@@ -23,7 +23,7 @@ static INLINE void opt_cpy_16(void* dst, const void* src)
 
 static INLINE void opt_cpy_32(void* dst, const void* src)
 {
-#if defined(OPT_AVX)
+#if defined(OPT_AVX2)
     __m256i m0 = _mm256_loadu_si256(((const __m256i*)src) + 0);
     _mm256_storeu_si256(((__m256i*)dst) + 0, m0);
 #elif defined(OPT_NEON)
@@ -36,7 +36,7 @@ static INLINE void opt_cpy_32(void* dst, const void* src)
 
 static INLINE void opt_cpy_64(void* dst, const void* src)
 {
-#if defined(OPT_AVX)
+#if defined(OPT_AVX2)
     __m256i m0 = _mm256_loadu_si256(((const __m256i*)src) + 0);
     __m256i m1 = _mm256_loadu_si256(((const __m256i*)src) + 1);
     _mm256_storeu_si256(((__m256i*)dst) + 0, m0);
@@ -55,7 +55,7 @@ static INLINE void opt_cpy_64(void* dst, const void* src)
 
 static INLINE void opt_cpy_128(void* dst, const void* src)
 {
-#if defined(OPT_AVX)
+#if defined(OPT_AVX2)
     __m256i m0 = _mm256_loadu_si256(((const __m256i*)src) + 0);
     __m256i m1 = _mm256_loadu_si256(((const __m256i*)src) + 1);
     __m256i m2 = _mm256_loadu_si256(((const __m256i*)src) + 2);
@@ -76,7 +76,7 @@ static INLINE void opt_cpy_128(void* dst, const void* src)
 #endif
 }
 
-#if defined(OPT_AVX)
+#if defined(OPT_AVX2)
 static INLINE void opt_cpy_256(void* dst, const void* src)
 {
     __m256i m0 = _mm256_loadu_si256(((const __m256i*)src) + 0);
@@ -102,7 +102,7 @@ static INLINE void opt_cpy_256(void* dst, const void* src)
 //---------------------------------------------------------------------
 // tiny memory copy with jump table optimized
 //---------------------------------------------------------------------
-#if defined(OPT_AVX)
+#if defined(OPT_AVX2)
 static INLINE void* opt_cpy_small(void* RESTRICT dst, const void* RESTRICT src, size_t size)
 {
     unsigned char*       dd = ((unsigned char*)dst) + size;
@@ -610,8 +610,8 @@ static INLINE void opt_cpy_small(void* RESTRICT dst, const void* RESTRICT src, s
         case 111:
         case 112:
             opt_cpy_64(dst, src);
-            opt_cpy_32(dd - 48, ss - 48); // 中间 32 字节
-            opt_cpy_16(dd - 16, ss - 16); // 末尾 16 字节
+            opt_cpy_32(dd - 48, ss - 48);
+            opt_cpy_16(dd - 16, ss - 16);
             break;
         case 113:
         case 114:
@@ -647,7 +647,7 @@ inline void opt_cpy(void* RESTRICT dstVoid, const void* RESTRICT srcVoid, std::s
     std::size_t          remaining = size;
 
 
-#ifdef OPT_AVX
+#ifdef OPT_AVX2
     if (remaining < 256) {
         opt_cpy_small(dst, src, remaining);
         return;
