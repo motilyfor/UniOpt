@@ -182,7 +182,7 @@ IncludeCategories:
     Priority:   1
 
 # 缩进case标签
-IndentCaseLabels: false
+IndentCaseLabels: true
 
 # 要使用的预处理器指令缩进样式
 IndentPPDirectives: AfterHash

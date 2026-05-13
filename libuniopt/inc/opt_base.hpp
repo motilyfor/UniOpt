@@ -35,7 +35,7 @@
     defined(__SSE2__)
 #define OPT_AVX
 #include <immintrin.h>
-#elif defined(ARCH_ARM64) || defined(__ARM_NEON)
+#elif defined(__aarch64__) || defined(_M_ARM64) || defined(__ARM_NEON) || defined(__ARM_NEON__)
 #define OPT_NEON
 #include <arm_neon.h>
 #endif
