@@ -194,9 +194,6 @@ static INLINE void* opt_cpy_small(void* RESTRICT dst, const void* RESTRICT src, 
         case 46:
         case 47:
         case 48:
-            opt_cpy_32(dst, src);
-            opt_cpy_16(dd - 16, ss - 16);
-            break;
         case 49:
         case 50:
         case 51:
@@ -232,9 +229,6 @@ static INLINE void* opt_cpy_small(void* RESTRICT dst, const void* RESTRICT src, 
         case 78:
         case 79:
         case 80:
-            opt_cpy_64(dst, src);
-            opt_cpy_16(dd - 16, ss - 16);
-            break;
         case 81:
         case 82:
         case 83:
@@ -250,10 +244,10 @@ static INLINE void* opt_cpy_small(void* RESTRICT dst, const void* RESTRICT src, 
         case 93:
         case 94:
         case 95:
+        case 96:
             opt_cpy_64(dst, src);
             opt_cpy_32(dd - 32, ss - 32);
             break;
-        case 96:
         case 97:
         case 98:
         case 99:
@@ -270,10 +264,6 @@ static INLINE void* opt_cpy_small(void* RESTRICT dst, const void* RESTRICT src, 
         case 110:
         case 111:
         case 112:
-            opt_cpy_64(dst, src);
-            opt_cpy_32(dd - 48, ss - 48);
-            opt_cpy_16(dd - 16, ss - 16);
-            break;
         case 113:
         case 114:
         case 115:
@@ -309,9 +299,6 @@ static INLINE void* opt_cpy_small(void* RESTRICT dst, const void* RESTRICT src, 
         case 142:
         case 143:
         case 144:
-            opt_cpy_128(dst, src);
-            opt_cpy_16(dd - 16, ss - 16);
-            break;
         case 145:
         case 146:
         case 147:

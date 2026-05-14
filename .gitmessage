@@ -1,0 +1,23 @@
+<type>(<scope>): <subject>
+
+# --- Commit Type (必选) ---
+# feat:     新功能 (A new feature)
+# fix:      修补 Bug (A bug fix)
+# docs:     文档修改 (Documentation only changes)
+# style:    代码格式 (Formatting, missing semi colons, etc)
+# refactor: 重构 (Code change that neither fixes a bug nor adds a feature)
+# perf:     性能优化 (A code change that improves performance)
+# test:     测试 (Adding missing tests)
+# chore:    构建过程或辅助工具的变动 (Changes to the build process or auxiliary tools)
+
+# --- Scope (可选) ---
+# 建议范围: cpy, bit, add, base, build
+
+# --- Subject (必选) ---
+# 简短描述，不要超过50个字符
+
+# --- Body (可选) ---
+# 详细描述为什么要进行此修改，以及主要的逻辑变动
+
+# --- Footer (可选) ---
+# Fixes #123, Related to #456
