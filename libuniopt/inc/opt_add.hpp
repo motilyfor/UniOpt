@@ -25,7 +25,8 @@ INLINE int32_t opt_add_i32(int32_t x, const int32_t y)
     return res;
 }
 
-INLINE void opt_vec_add_i16(int16_t* RESTRICT dst, const int16_t* RESTRICT x, const int16_t* RESTRICT y, std::size_t count)
+INLINE void opt_vec_add_i16(int16_t* RESTRICT dst, const int16_t* RESTRICT x,
+                            const int16_t* RESTRICT y, std::size_t count)
 {
 #if defined(OPT_NEON)
     std::size_t i = 0;
@@ -54,7 +55,8 @@ INLINE void opt_vec_add_i16(int16_t* RESTRICT dst, const int16_t* RESTRICT x, co
 #endif
 }
 
-INLINE void opt_vec_add_i32(int32_t* RESTRICT dst, const int32_t* RESTRICT x, const int32_t* RESTRICT y, std::size_t count)
+INLINE void opt_vec_add_i32(int32_t* RESTRICT dst, const int32_t* RESTRICT x,
+                            const int32_t* RESTRICT y, std::size_t count)
 {
 #if defined(OPT_NEON)
     std::size_t i = 0;
