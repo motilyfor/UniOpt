@@ -1,31 +1,47 @@
 #pragma once
 #include <cstdint>
+#include "opt_base.hpp"
 #include "opt_bit.hpp"
 
-inline int32_t opt_devide(int32_t a, int32_t b) {
-    // Constants
-    const int32_t InitialQ25 = 0x05DB3D08;  // 2.9282 in Q25 format (0x05DB3D08)
-    const int32_t FracBits = 24;                // Fixed-point fractional bits
-    const int32_t OneQ24 = 1 << FracBits;   // 1.0 in Q24 = 2^24
-    
-    // Handle sign: division sign = sign(a) XOR sign(b)
-    int32_t signA = (a < 0) ? -1 : 1;
-    int32_t signB = (b < 0) ? -1 : 1;
-    int32_t resultSign = signA * signB;
-    
-    // Work with absolute values
-    int32_t aAbs = (a < 0) ? -a : a;
-    int32_t bAbs = (b < 0) ? -b : b;
-    
-    // Step 1: Find normalization shift to keep b in a good range
-    // Count leading zeros to normalize b toward [2^30, 2^31)
-    int32_t clzB = opt_clz(bAbs);  // Leading zeros in bAbs
-    int32_t bNormalized = bAbs << clzB;
-    int32_t normShift = clzB;
-    
-    // Step 2: Initial reciprocal estimate x^(0)
-    // x^(0) ≈ 2.9282 / sqrt(2 * bNormalized)
-    // Simplified heuristic: scale by normalization
-    int32_t x = InitialQ25 - (bAbs / 2);
-    
+INLINE void opt_devide(int32_t& frac, int32_t& exp, int32_t x, int32_t y)
+{
+    if (y == 0) {
+        frac = 0x7FFFFFFF; // Return max int32_t for division by zero
+        exp = 0;
+        return;
+    }
+#if defined(OPT_AVX2)
+
+
+#elif defined(OPT_NEON)
+
+
+#else 
+    int32_t sy, sx;
+    int32_t z, e;
+    sx = opt_clz(x);
+    x <<= sx;
+    sy = opt_clz(y);
+    y <<= sy;
+
+    z = (int32_t)0xBB6872B0 - y;
+    /* 4 iterations to achieve 1 LSB for reciprocal 
+    */
+    e = 0x40000000 - satQ31((((int64_t)y * z) + (1L << 30)) >> 31);
+    e <<= 1;
+    z = L_add_ll(z, satQ31((((int64_t)z * e) + (1L << 30)) >> 31));
+    e = 0x40000000 - satQ31((((int64_t)y * z) + (1L << 30)) >> 31);
+    e <<= 1;
+    z = L_add_ll(z, satQ31((((int64_t)z * e) + (1L << 30)) >> 31));
+    e = 0x40000000 - satQ31((((int64_t)y * z) + (1L << 30)) >> 31);
+    e <<= 1;
+    z = L_add_ll(z, satQ31((((int64_t)z * e) + (1L << 30)) >> 31));
+    e = 0x40000000 - satQ31((((int64_t)y * z) + (1L << 30)) >> 31);
+    e <<= 1;
+    z = L_add_ll(z, satQ31((((int64_t)z * e) + (1L << 30)) >> 31));
+    /* */
+
+    frac = z;
+    exp = sy - sx + 1;
+#endif
 }
