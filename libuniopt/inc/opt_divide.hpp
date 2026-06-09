@@ -7,14 +7,11 @@
 #include "opt_add.hpp"
 #include "opt_mult.hpp"
 
-// constexpr int32_t OPT_DIVIDE_Q31_ITER =  2.9282 * 0x7FFFFFFF; // Initial guess for 1/y in Q31
-
 INLINE void opt_divide_q31(int32_t& frac, int32_t& exp, int32_t x, int32_t y)
 {
     if (y == 0) {
         frac = 0x7FFFFFFF; // Return max int32_t for division by zero
         exp = 0;
-        std::fprintf(stderr, "[opt_divide_q31] divide-by-zero => frac=%d, exp=%d\n", frac, exp);
         return;
     }
 // #if defined(OPT_AVX2)
