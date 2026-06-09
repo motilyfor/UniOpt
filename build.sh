@@ -80,7 +80,60 @@ function show_help {
     echo "  --compiler <cc>   编译器 (gcc, clang). 默认: gcc"
     echo "  --target <name>   构建目标或具体子目标（例如: test, test_cpy, //test:test_cpy）。若不指定则构建默认顶层目标"
     echo "  --clean           构建前清理输出目录"
+    echo "  --gc-sections     启用函数/数据分段并在链接时移除未引用代码，缩小产物体积"
+    echo "  --asm             构建成功后导出反汇编文件到 out/.../asm，用于和源码比对"
     echo "  --help            显示帮助信息"
+}
+
+function export_asm_artifacts {
+    local out_dir="$1"
+    local ninja_target="$2"
+    local asm_dir="${out_dir}/asm"
+    local -a artifacts=()
+
+    if ! command -v objdump >/dev/null 2>&1; then
+        echo "警告: 未找到 objdump，跳过反汇编导出。"
+        return
+    fi
+
+    mkdir -p "${asm_dir}"
+
+    if [[ -n "${ninja_target}" && "${ninja_target}" == *:* ]]; then
+        local rel_bin="${ninja_target/://}"
+        if [ -f "${out_dir}/${rel_bin}" ] && [ -x "${out_dir}/${rel_bin}" ]; then
+            artifacts+=("${out_dir}/${rel_bin}")
+        fi
+    fi
+
+    if [ "${#artifacts[@]}" -eq 0 ]; then
+        while IFS= read -r f; do
+            artifacts+=("$f")
+        done < <(find "${out_dir}" -type f -perm -u+x \
+            ! -name "*.so" \
+            ! -name "*.a" \
+            ! -path "${out_dir}/obj/*" \
+            ! -path "${out_dir}/asm/*")
+    fi
+
+    if [ "${#artifacts[@]}" -eq 0 ]; then
+        echo "未找到可导出反汇编的可执行产物。"
+        return
+    fi
+
+    echo "正在导出反汇编文件到: ${asm_dir}"
+    for bin in "${artifacts[@]}"; do
+        local rel
+        rel=$(realpath --relative-to="${out_dir}" "${bin}")
+        local safe_name
+        safe_name=$(echo "${rel}" | sed 's#[/ ]#_#g')
+        local asm_file="${asm_dir}/${safe_name}.asm"
+
+        # -S 将源码与汇编混排，-l 显示源代码行号，-C 做 C++ 符号反修饰。
+        objdump -d -S -l -C -M intel "${bin}" > "${asm_file}"
+        echo "  ${rel} -> ${asm_file}"
+    done
+
+    echo "提示: 为了更完整的源码行信息，建议使用 --debug 构建。"
 }
 
 function precompile_clang_modules {
@@ -198,6 +251,8 @@ function interactive_config {
 # 解析参数
 CLEAN_BUILD=false
 MOVE_ROOT=false
+EXPORT_ASM=false
+ENABLE_GC_SECTIONS=false
 
 while [[ "$#" -gt 0 ]]; do
     case $1 in
@@ -209,7 +264,9 @@ while [[ "$#" -gt 0 ]]; do
         --compiler) COMPILER="$2"; shift ;;
         --target) BUILD_TARGET="$2"; shift ;;
         --clean) CLEAN_BUILD=true ;;
+        --gc-sections) ENABLE_GC_SECTIONS=true ;;
         --move-root) MOVE_ROOT=true ;;
+        --asm) EXPORT_ASM=true ;;
         --help) show_help; exit 0 ;;
         *) echo "未知参数: $1"; show_help; exit 1 ;;
     esac
@@ -251,6 +308,10 @@ if [ -n "${BUILD_TARGET}" ]; then
     GN_ARGS="${GN_ARGS} build_target=\"${BUILD_TARGET}\""
 fi
 
+if [ "${ENABLE_GC_SECTIONS}" = true ]; then
+    GN_ARGS="${GN_ARGS} enable_gc_sections=true"
+fi
+
 echo "========================================"
 echo "构建配置:"
 echo "  类型: ${BUILD_TYPE}"
@@ -258,6 +319,7 @@ echo "  系统: ${TARGET_OS}"
 echo "  架构: ${TARGET_CPU}"
 echo "  编译器: ${COMPILER}"
 echo "  目标: ${BUILD_TARGET}"
+echo "  去除未引用函数: ${ENABLE_GC_SECTIONS}"
 echo "  输出: ${OUT_DIR}"
 echo "  参数: ${GN_ARGS}"
 echo "========================================"
@@ -265,7 +327,7 @@ echo "========================================"
 # 1. 生成构建文件
 echo "正在生成构建文件 (gn gen)..."
 # Always write args.gn
-"${ROOT_DIR}/build/generate_args_gn.sh" "${OUT_DIR}" --target "${BUILD_TARGET}" --os "${TARGET_OS}" --arch "${TARGET_CPU}" --compiler "${COMPILER}" $( [ "${BUILD_TYPE}" == "Debug" ] && echo --debug || echo --release )
+"${ROOT_DIR}/build/generate_args_gn.sh" "${OUT_DIR}" --target "${BUILD_TARGET}" --os "${TARGET_OS}" --arch "${TARGET_CPU}" --compiler "${COMPILER}" $( [ "${BUILD_TYPE}" == "Debug" ] && echo --debug || echo --release ) $( [ "${ENABLE_GC_SECTIONS}" = true ] && echo --gc-sections )
 
 if [ "$MOVE_ROOT" = true ]; then
     # Try to copy the original/backup root BUILD.gn into out and run gn with out as root
@@ -388,6 +450,10 @@ if [[ -n "${NINJA_TARGET}" ]]; then
     ninja -C "${OUT_DIR}" -j1 "${NINJA_TO_USE}" 2>&1 | tee "${OUT_DIR}/build.log"
 else
     ninja -C "${OUT_DIR}" -j1 2>&1 | tee "${OUT_DIR}/build.log"
+fi
+
+if [ "${EXPORT_ASM}" = true ]; then
+    export_asm_artifacts "${OUT_DIR}" "${NINJA_TARGET}"
 fi
 
 echo "构建成功! 构建产物位于: ${OUT_DIR}"

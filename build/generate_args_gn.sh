@@ -5,7 +5,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 if [ "$#" -lt 2 ]; then
-    echo "Usage: $0 <out_dir> --target <target> [--os <os>] [--arch <arch>] [--debug|--release] [--compiler <gcc|clang>]"
+    echo "Usage: $0 <out_dir> --target <target> [--os <os>] [--arch <arch>] [--debug|--release] [--compiler <gcc|clang>] [--gc-sections]"
     exit 1
 fi
 
@@ -15,6 +15,7 @@ TARGET_CPU="x64"
 BUILD_TYPE="Debug"
 COMPILER="gcc"
 BUILD_TARGET=""
+ENABLE_GC_SECTIONS="false"
 
 while [[ "$#" -gt 0 ]]; do
     case "$1" in
@@ -24,6 +25,7 @@ while [[ "$#" -gt 0 ]]; do
         --compiler) COMPILER="$2"; shift 2 ;;
         --debug) BUILD_TYPE="Debug"; shift ;;
         --release) BUILD_TYPE="Release"; shift ;;
+        --gc-sections) ENABLE_GC_SECTIONS="true"; shift ;;
         *) OUT_DIR="$1"; shift ;;
     esac
 done
@@ -95,6 +97,7 @@ ARGS_FILE="${OUT_DIR}/args.gn"
         # write as quoted string; generator will parse and embed label into BUILD.gn
         echo "build_target=\"${FULL_LABEL}\""
     fi
+    echo "enable_gc_sections=${ENABLE_GC_SECTIONS}"
 } > "$ARGS_FILE"
 
 echo "Wrote GN args to: ${ARGS_FILE}"

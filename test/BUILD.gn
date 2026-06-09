@@ -14,9 +14,18 @@ executable("test_clz") {
   ]
 }
 
+executable("test_divide") {
+  sources = [ "test_divide.cpp" ]
+
+  include_dirs = [
+    "//libuniopt/inc",
+  ]
+}
+
 group("test_all") {
   deps = [
     ":test_cpy",
     ":test_clz",
+    ":test_divide",
   ]
 }

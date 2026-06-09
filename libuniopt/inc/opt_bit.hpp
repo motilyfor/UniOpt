@@ -45,7 +45,7 @@ INLINE int32_t opt_clz(uint32_t x)
 
 INLINE int32_t opt_clz(int32_t x)
 {
-    return opt_clz((uint32_t)x);
+    return opt_clz((uint32_t)x << 1); // Shift left to ignore sign bit
 }
 
 /**

@@ -14,6 +14,7 @@ if (current_cpu == "") {
 declare_args() {
   is_debug = true
   is_clang = false
+  enable_gc_sections = false
 }
 
 is_linux = host_os == "linux" && current_os == "linux" && target_os == "linux"
@@ -41,6 +42,10 @@ _shared_binary_target_configs = [
   "//build/config:compiler_defaults",
 ]
 
+if (enable_gc_sections) {
+  _shared_binary_target_configs += [ "//build/config:gc_sections_compile" ]
+}
+
 if (is_debug) {
   _shared_binary_target_configs += [ "//build/config:debug" ]
 } else {
@@ -49,6 +54,9 @@ if (is_debug) {
 
 set_defaults("executable") {
   configs = _shared_binary_target_configs
+  if (enable_gc_sections) {
+    configs += [ "//build/config:gc_sections_link" ]
+  }
 }
 
 set_defaults("static_library") {
@@ -57,6 +65,9 @@ set_defaults("static_library") {
 
 set_defaults("shared_library") {
   configs = _shared_binary_target_configs
+  if (enable_gc_sections) {
+    configs += [ "//build/config:gc_sections_link" ]
+  }
 }
 
 set_defaults("source_set") {

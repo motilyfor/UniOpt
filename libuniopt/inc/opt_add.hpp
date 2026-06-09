@@ -15,6 +15,19 @@ INLINE int16_t opt_add_i16(int16_t x, const int16_t y)
     return res;
 }
 
+/**
+ * @brief Saturating addition for @c int32_t (Q31 format).
+ *
+ * @details Computes `z = x + y` with saturation semantics. Overflow can only
+ *          occur when @p x and @p y share the same sign, in which case the
+ *          result is clamped to the nearest representable boundary.
+ *
+ *          Format: Q31 + Q31 → Q31
+ *
+ * @param[in] x First operand.
+ * @param[in] y Second operand.
+ * @return    @p x + @p y saturated to [INT32_MIN, INT32_MAX].
+ */
 INLINE int32_t opt_add_i32(int32_t x, const int32_t y)
 {
     int32_t res;

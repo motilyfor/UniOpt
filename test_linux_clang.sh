@@ -7,12 +7,8 @@ set -euo pipefail
 if [ "$#" -eq 0 ]; then
   TARGET=test_opt
   ARGS=()
-elif [ "$#" -eq 1 ]; then
-  # single argument: treat as test name, keep default target
-  TARGET=test_opt
-  ARGS=("$1")
 else
-  # two or more args: first is target, rest are args for the binary
+  # first arg is the build target, rest are args for the binary
   TARGET=$1
   shift
   ARGS=("$@")

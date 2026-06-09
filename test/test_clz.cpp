@@ -2,7 +2,7 @@
 #include <cstring>
 #include <cassert>
 
-#include "../libuniopt/inc/opt_clz.hpp"
+#include "opt_bit.hpp"
 #include "test_base.hpp"
 
 int test_clz_1()

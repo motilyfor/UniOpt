@@ -5,9 +5,7 @@
 #include <cassert>
 
 // Include the implementation inside the expected nested namespace.
-namespace audioeffectstore::internal {
 #include "../libuniopt/inc/opt_cpy.hpp"
-}
 
 int main() {
     std::mt19937_64 rng(12345);
@@ -34,7 +32,7 @@ int main() {
         for (std::size_t i = 0; i < size; ++i) srcb[i] = static_cast<unsigned char>(dist(rng) & 0xFF);
 
         // call opt_cpy (qualified namespace)
-        audioeffectstore::internal::opt_cpy(dst1_ptr, src_ptr, size);
+        opt_cpy(dst1_ptr, src_ptr, size);
 
         // fallback memcpy
         std::memcpy(dst2_ptr, src_ptr, size);

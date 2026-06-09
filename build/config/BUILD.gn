@@ -36,6 +36,29 @@ config("compiler_defaults") {
   }
 }              
 
+config("gc_sections_compile") {
+  if (enable_gc_sections) {
+    if (is_linux) {
+      cflags = [
+        "-ffunction-sections",
+        "-fdata-sections",
+      ]
+    } else if (is_win) {
+      cflags = [ "/Gy" ]
+    }
+  }
+}
+
+config("gc_sections_link") {
+  if (enable_gc_sections) {
+    if (is_linux) {
+      ldflags = [ "-Wl,--gc-sections" ]
+    } else if (is_win) {
+      ldflags = [ "/OPT:REF" ]
+    }
+  }
+}
+
 
 config("debug") {
   if (is_win) {
