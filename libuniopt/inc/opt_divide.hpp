@@ -16,7 +16,6 @@ INLINE void opt_divide_q31(int32_t& frac, int32_t& exp, int32_t x, int32_t y)
     }
 // #if defined(OPT_AVX2)
 
-
 // #elif defined(OPT_NEON)
 
 
@@ -34,7 +33,6 @@ INLINE void opt_divide_q31(int32_t& frac, int32_t& exp, int32_t x, int32_t y)
 
     // 3. 计算 1/uy 的初值 (Newton-Raphson initial guess)
     // 对于 uy \in [0.5, 1.0)，使用线性近似: z(q30) =  2.9282 - 2 * uy 
-    // 在这里使用简化的线性近似常数
     int32_t z = (int32_t)0xBB67A0F9 - uy;
 
     /* 4 iterations to achieve 1 LSB for reciprocal 

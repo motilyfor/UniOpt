@@ -22,6 +22,22 @@ executable("test_divide") {
   ]
 }
 
+executable("test_abs") {
+  sources = [ "test_abs.cpp" ]
+
+  include_dirs = [
+    "//libuniopt/inc",
+  ]
+}
+
+executable("test_add") {
+  sources = [ "test_add.cpp" ]
+
+  include_dirs = [
+    "//libuniopt/inc",
+  ]
+}
+
 group("test_all") {
   deps = [
     ":test_cpy",
