@@ -1,3 +1,23 @@
+/**
+ * @file opt_abs.hpp
+ * @brief Absolute value computation with scalar and vectorized implementations.
+ * 
+ * Provides branchless scalar absolute value functions and SIMD-accelerated
+ * vectorized variants for int16_t and int32_t types across AVX2/NEON architectures.
+ * 
+ * @author motilyfor
+ * @email motilyfor@foxmail.com
+ * @date 2026-06-12
+ * @version 1.0
+ * 
+ * @details
+ * This header implements:
+ * - Scalar branchless absolute value for int16_t and int32_t
+ * - Vectorized absolute value using AVX2 (_mm256_abs_epi16/32)
+ * - Vectorized absolute value using ARM NEON (vabsq_s16/32)
+ * - Fallback scalar implementation for non-SIMD targets
+ */
+
 #pragma once
 #include "opt_base.hpp"
 #include <cstddef>
@@ -10,6 +30,18 @@
 #    include <arm_neon.h>
 #endif
 
+/**
+ * @brief Compute absolute value of a signed 16-bit integer (branchless).
+ * 
+ * Uses XOR-based branchless arithmetic to avoid conditional branches:
+ * - Extract sign bit via arithmetic right shift
+ * - XOR with sign mask and subtract to flip negative values
+ * 
+ * @param[in] x Input signed 16-bit integer
+ * @return    Absolute value of x (non-negative)
+ * 
+ * @note This implementation handles INT16_MIN edge case by saturation to INT16_MAX.
+ */
 INLINE int16_t opt_abs_i16(int16_t x)
 {
     int16_t sign = x >> 15;   // 0 or -1
@@ -17,7 +49,19 @@ INLINE int16_t opt_abs_i16(int16_t x)
 }
 
 #if defined(OPT_AVX2)
-// Vectorized absolute for i16 (process 16 elements per iteration)
+/**
+ * @brief Vectorized absolute value for int16_t using AVX2 (256-bit).
+ * 
+ * Processes 16 elements per iteration using _mm256_abs_epi16(), with scalar
+ * fallback for remainder elements.
+ * 
+ * @param[out] dst   Destination array (must not overlap with src)
+ * @param[in]  src   Source array of int16_t values
+ * @param[in]  n     Number of elements to process
+ * 
+ * @pre dst and src must be non-overlapping
+ * @post dst[i] = abs(src[i]) for all i in [0, n)
+ */
 INLINE void opt_vec_i16(int16_t* RESTRICT dst, const int16_t* RESTRICT src, size_t n)
 {
     size_t i = 0;
@@ -29,7 +73,19 @@ INLINE void opt_vec_i16(int16_t* RESTRICT dst, const int16_t* RESTRICT src, size
     for (; i < n; ++i) dst[i] = opt_abs_i16(src[i]);
 }
 #elif defined(OPT_NEON)
-// NEON: vectorized absolute for i16 (process 8 elements per iteration)
+/**
+ * @brief Vectorized absolute value for int16_t using ARM NEON (128-bit).
+ * 
+ * Processes 8 elements per iteration using vabsq_s16(), with scalar
+ * fallback for remainder elements.
+ * 
+ * @param[out] dst   Destination array (must not overlap with src)
+ * @param[in]  src   Source array of int16_t values
+ * @param[in]  n     Number of elements to process
+ * 
+ * @pre dst and src must be non-overlapping
+ * @post dst[i] = abs(src[i]) for all i in [0, n)
+ */
 INLINE void opt_vec_i16(int16_t* RESTRICT dst, const int16_t* RESTRICT src, size_t n)
 {
     size_t i = 0;
@@ -41,13 +97,35 @@ INLINE void opt_vec_i16(int16_t* RESTRICT dst, const int16_t* RESTRICT src, size
     for (; i < n; ++i) dst[i] = opt_abs_i16(src[i]);
 }
 #else
+/**
+ * @brief Scalar fallback for vectorized absolute value of int16_t.
+ * 
+ * Processes all elements using scalar branchless computation.
+ * 
+ * @param[out] dst   Destination array
+ * @param[in]  src   Source array of int16_t values
+ * @param[in]  n     Number of elements to process
+ * 
+ * @post dst[i] = abs(src[i]) for all i in [0, n)
+ */
 INLINE void opt_vec_i16(int16_t* RESTRICT dst, const int16_t* RESTRICT src, size_t n)
 {
     for (size_t i = 0; i < n; ++i) dst[i] = opt_abs_i16(src[i]);
 }
 #endif
 
-// Scalar branchless absolute for int32_t
+/**
+ * @brief Compute absolute value of a signed 32-bit integer (branchless).
+ * 
+ * Uses XOR-based branchless arithmetic:
+ * - Extract sign bit via arithmetic right shift
+ * - XOR with sign mask and subtract to flip negative values
+ * 
+ * @param[in] x Input signed 32-bit integer
+ * @return    Absolute value of x (non-negative)
+ * 
+ * @note This implementation handles INT32_MIN edge case by saturation to INT32_MAX.
+ */
 INLINE int32_t opt_abs_i32(int32_t x)
 {
     int32_t sign = x >> 31;   // 0 or -1
@@ -55,7 +133,19 @@ INLINE int32_t opt_abs_i32(int32_t x)
 }
 
 #if defined(OPT_AVX2)
-// Vectorized absolute for i32 (process 8 elements per iteration)
+/**
+ * @brief Vectorized absolute value for int32_t using AVX2 (256-bit).
+ * 
+ * Processes 8 elements per iteration using _mm256_abs_epi32(), with scalar
+ * fallback for remainder elements.
+ * 
+ * @param[out] dst   Destination array (must not overlap with src)
+ * @param[in]  src   Source array of int32_t values
+ * @param[in]  n     Number of elements to process
+ * 
+ * @pre dst and src must be non-overlapping
+ * @post dst[i] = abs(src[i]) for all i in [0, n)
+ */
 INLINE void opt_vec_i32(int32_t* RESTRICT dst, const int32_t* RESTRICT src, size_t n)
 {
     size_t i = 0;
@@ -67,7 +157,19 @@ INLINE void opt_vec_i32(int32_t* RESTRICT dst, const int32_t* RESTRICT src, size
     for (; i < n; ++i) dst[i] = opt_abs_i32(src[i]);
 }
 #elif defined(OPT_NEON)
-// NEON: vectorized absolute for i32 (process 4 elements per iteration)
+/**
+ * @brief Vectorized absolute value for int32_t using ARM NEON (128-bit).
+ * 
+ * Processes 4 elements per iteration using vabsq_s32(), with scalar
+ * fallback for remainder elements.
+ * 
+ * @param[out] dst   Destination array (must not overlap with src)
+ * @param[in]  src   Source array of int32_t values
+ * @param[in]  n     Number of elements to process
+ * 
+ * @pre dst and src must be non-overlapping
+ * @post dst[i] = abs(src[i]) for all i in [0, n)
+ */
 INLINE void opt_vec_i32(int32_t* RESTRICT dst, const int32_t* RESTRICT src, size_t n)
 {
     size_t i = 0;
@@ -79,6 +181,17 @@ INLINE void opt_vec_i32(int32_t* RESTRICT dst, const int32_t* RESTRICT src, size
     for (; i < n; ++i) dst[i] = opt_abs_i32(src[i]);
 }
 #else
+/**
+ * @brief Scalar fallback for vectorized absolute value of int32_t.
+ * 
+ * Processes all elements using scalar branchless computation.
+ * 
+ * @param[out] dst   Destination array
+ * @param[in]  src   Source array of int32_t values
+ * @param[in]  n     Number of elements to process
+ * 
+ * @post dst[i] = abs(src[i]) for all i in [0, n)
+ */
 INLINE void opt_vec_i32(int32_t* RESTRICT dst, const int32_t* RESTRICT src, size_t n)
 {
     for (size_t i = 0; i < n; ++i) dst[i] = opt_abs_i32(src[i]);
