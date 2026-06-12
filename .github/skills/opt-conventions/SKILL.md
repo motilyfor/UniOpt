@@ -90,5 +90,3 @@ INLINE void opt_vec_abs_i32(int32_t* RESTRICT dst, const int32_t* RESTRICT src, 
 - "请生成 `opt_vec_mul_q31` 的单测，覆盖对齐/未对齐和尾部长度。"
 
 ---
-
-如果你希望我把该 `SKILL.md` 复制到用户范围（个人 prompts 目录）或更新为更严格的 frontmatter（例如 `applyTo` globs），告诉我目标位置与触发关键字，我会继续。
